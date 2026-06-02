@@ -7,9 +7,10 @@ from aiogram.filters import Command
 # ===== НАСТРОЙКИ =====
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 if not BOT_TOKEN:
-    raise ValueError("")
+    raise ValueError("Переменная окружения BOT_TOKEN не установлена!")
 
-CHANNEL_ID = -1003971374938 
+# ID вашего канала (убедитесь, что он правильный и начинается с минуса)
+CHANNEL_ID = -1003971374938
 # ==================================
 
 MESSAGE_TEXT = (
@@ -24,15 +25,14 @@ logging.basicConfig(level=logging.INFO)
 
 
 async def main():
+    # Бот создается без всяких прокси
     bot = Bot(token=BOT_TOKEN)
     dp = Dispatcher()
     
-    # Обработчик команды /start
     @dp.message(Command("start"))
     async def cmd_start(message: types.Message):
         await message.answer("Кидай пост в свой тгк и лутай подарок!")
     
-    # Обработчик заявок на вступление
     @dp.chat_join_request()
     async def on_join_request(update: types.ChatJoinRequest):
         if update.chat.id == CHANNEL_ID:
@@ -43,7 +43,6 @@ async def main():
             except Exception as e:
                 logging.error(f"❌ Не удалось отправить сообщение {user.id}: {e}")
     
-    # Запускаем бота
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
