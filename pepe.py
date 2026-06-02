@@ -3,16 +3,13 @@ import logging
 import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.client.session.aiohttp import AiohttpSession
 
 # ===== НАСТРОЙКИ =====
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 if not BOT_TOKEN:
-    raise ValueError("Переменная окружения BOT_TOKEN не установлена!")
+    raise ValueError("")
 
-CHANNEL_ID = -1003971374938           
-
-PROXY_URL = 'socks5://45.144.49.156:1080'
+CHANNEL_ID = -1003971374938 
 # ==================================
 
 MESSAGE_TEXT = (
@@ -27,14 +24,15 @@ logging.basicConfig(level=logging.INFO)
 
 
 async def main():
-    session = AiohttpSession(proxy=PROXY_URL)
-    bot = Bot(token=BOT_TOKEN, session=session)
+    bot = Bot(token=BOT_TOKEN)
     dp = Dispatcher()
     
+    # Обработчик команды /start
     @dp.message(Command("start"))
     async def cmd_start(message: types.Message):
         await message.answer("Кидай пост в свой тгк и лутай подарок!")
     
+    # Обработчик заявок на вступление
     @dp.chat_join_request()
     async def on_join_request(update: types.ChatJoinRequest):
         if update.chat.id == CHANNEL_ID:
@@ -45,6 +43,7 @@ async def main():
             except Exception as e:
                 logging.error(f"❌ Не удалось отправить сообщение {user.id}: {e}")
     
+    # Запускаем бота
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
